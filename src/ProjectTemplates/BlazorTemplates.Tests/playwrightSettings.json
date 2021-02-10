@@ -10,12 +10,12 @@
     "Timeout": 30000
   },
   "GlobalContextOptions": {
-    "RecordVideo": {
-      "Dir": "videos"
-    },
-    "RecordHar": {
-      "Path": "har"
-    },
+    //"RecordVideo": {
+    //  "Dir": "videos"
+    //},
+    //"RecordHar": {
+    //  "Path": "har"
+    //},
     "IgnoreHTTPSErrors": true
   },
   "BrowserOptions": {

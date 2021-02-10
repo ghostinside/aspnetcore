@@ -138,10 +138,13 @@ namespace Templates.Test
                 await aspNetProcess.AssertStatusCode("/", HttpStatusCode.OK, "text/html");
                 if (Fixture.BrowserManager.IsAvailable(browserKind))
                 {
-                    var page = await browser.NewPageAsync();
-                    await aspNetProcess.VisitInBrowserAsync(page);
-                    await TestBasicNavigation(page);
-                    await page.CloseAsync();
+                    for (int i = 0; i < 100; i++)
+                    {
+                        var page = await browser.NewPageAsync();
+                        await aspNetProcess.VisitInBrowserAsync(page);
+                        await TestBasicNavigation(page);
+                        await page.CloseAsync();
+                    }
                 }
                 else
                 {
@@ -158,10 +161,13 @@ namespace Templates.Test
                 await aspNetProcess.AssertStatusCode("/", HttpStatusCode.OK, "text/html");
                 if (Fixture.BrowserManager.IsAvailable(browserKind))
                 {
-                    var page = await browser.NewPageAsync();
-                    await aspNetProcess.VisitInBrowserAsync(page);
-                    await TestBasicNavigation(page);
-                    await page.CloseAsync();
+                    for (int i = 0; i < 100; i++)
+                    {
+                        var page = await browser.NewPageAsync();
+                        await aspNetProcess.VisitInBrowserAsync(page);
+                        await TestBasicNavigation(page);
+                        await page.CloseAsync(); 
+                    }
                 }
                 else
                 {
@@ -172,8 +178,10 @@ namespace Templates.Test
 
         private async Task TestBasicNavigation(IPage page)
         {
-            var socket = BrowserContextInfo.Pages[page].WebSockets.SingleOrDefault() ??
-                (await page.WaitForEventAsync(PageEvent.WebSocket)).WebSocket;
+            var socket = (await page.WaitForEventAsync(PageEvent.WebSocket)).WebSocket;
+
+            // Start circuit
+            await socket.WaitForEventAsync(WebSocketEvent.FrameSent);
 
             // Receive render batch
             await socket.WaitForEventAsync(WebSocketEvent.FrameReceived);

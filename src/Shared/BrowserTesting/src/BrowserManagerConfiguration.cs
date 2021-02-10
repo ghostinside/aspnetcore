@@ -313,7 +313,7 @@ namespace Microsoft.AspNetCore.BrowserTesting
                 Proxy = overrideOptions?.Proxy != default ? overrideOptions.Proxy : defaultOptions.Proxy,
                 RecordVideo = overrideOptions?.RecordVideo != default ?
                     new() { Dir = overrideOptions.RecordVideo.Dir, Size = overrideOptions.RecordVideo.Size?.Clone() } :
-                    defaultOptions != default ?
+                    defaultOptions?.RecordVideo != default ?
                         new() { Dir = defaultOptions.RecordVideo.Dir, Size = defaultOptions.RecordVideo.Size?.Clone() } :
                         default,
                 RecordHar = overrideOptions?.RecordHar != default ?
