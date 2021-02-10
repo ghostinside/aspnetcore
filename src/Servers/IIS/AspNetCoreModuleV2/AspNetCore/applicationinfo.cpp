@@ -20,7 +20,7 @@
 #include "file_utility.h"
 
 extern HINSTANCE           g_hServerModule;
-extern BOOL         g_fInShutdown;
+extern BOOL         g_fInAppOfflineShutdown;
 
 HRESULT
 APPLICATION_INFO::CreateHandler(
@@ -53,7 +53,6 @@ APPLICATION_INFO::CreateHandler(
         while (hr != S_OK)
         {
             // At this point application is either null or shutdown and is returning S_FALSE
-
             if (m_pApplication != nullptr)
             {
                 LOG_INFO(L"Application went offline");
@@ -67,10 +66,16 @@ APPLICATION_INFO::CreateHandler(
             LOG_INFO(L"Calling create application");
             RETURN_IF_FAILED(CreateApplication(pHttpContext));
 
-            RETURN_IF_FAILED(hr = TryCreateHandler(pHttpContext, pHandler));
+            hr = TryCreateHandler(pHttpContext, pHandler);
+            if (hr != S_OK)
+            {
+                LOG_INFO(L"FAILED FROM APP INFO");
+                return hr;
+            }
         }
     }
 
+    LOG_INFO(L"RETURNING S_OK");
     return S_OK;
 }
 
@@ -78,7 +83,7 @@ HRESULT
 APPLICATION_INFO::CreateApplication(IHttpContext& pHttpContext)
 {
     auto& pHttpApplication = *pHttpContext.GetApplication();
-    if (AppOfflineApplication::ShouldBeStarted(pHttpApplication) || g_fInShutdown)
+    if (AppOfflineApplication::ShouldBeStarted(pHttpApplication) || g_fInAppOfflineShutdown)
     {
         LOG_INFO(L"Detected app_offline file, creating polling application");
         m_pApplication = make_application<AppOfflineApplication>(pHttpApplication);
@@ -249,20 +254,28 @@ APPLICATION_INFO::TryCreateHandler(
         IREQUEST_HANDLER * newHandler;
         const auto result = m_pApplication->TryCreateHandler(&pHttpContext, &newHandler);
         RETURN_IF_FAILED(result);
+        SUCCEEDED_LOG(result);
+        FAILED_LOG(result);
+
         LOG_INFO(L"Created handler");
 
         if (result == S_OK)
         {
+            LOG_INFO(L"reset");
             pHandler.reset(newHandler);
             // another thread created the application
             return S_OK;
         }
+        LOG_INFO(L"Failed");
     }
     else
     {
         LOG_INFO(L"No Handler, no app");
     }
-    return S_FALSE;
+
+    LOG_INFO(L"S_FALSE");
+
+    return E_FAIL;
 }
 
 VOID

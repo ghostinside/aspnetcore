@@ -10,6 +10,7 @@
 #include "EventLog.h"
 
 extern BOOL         g_fInShutdown;
+extern BOOL         g_fInAppOfflineShutdown;
 
 //
 // Retrieves the application info from the application manager
@@ -118,7 +119,7 @@ APPLICATION_MANAGER::RecycleApplicationFromManager(
 
             if (m_handlerResolver.GetHostingModel() == APP_HOSTING_MODEL::HOSTING_IN_PROCESS)
             {
-                g_fInShutdown = true;
+                g_fInAppOfflineShutdown = true;
             }
 
             // All applications were unloaded reset handler resolver validation logic

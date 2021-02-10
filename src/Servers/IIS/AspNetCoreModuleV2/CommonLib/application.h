@@ -31,8 +31,10 @@ public:
         // as m_fStoppedCalled is only set by Stop.
         if (m_fStopCalled)
         {
+            LOG_INFO(L"Stop called.");
             return S_FALSE;
         }
+        LOG_INFO(L"Application create handler");
 
         TraceContextScope traceScope(pHttpContext->GetTraceContext());
 

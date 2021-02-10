@@ -101,7 +101,12 @@ ASPNET_CORE_PROXY_MODULE::OnExecuteRequestHandler(
             *pHttpContext,
             m_pApplicationInfo));
 
-        FINISHED_IF_FAILED(m_pApplicationInfo->CreateHandler(*pHttpContext, m_pHandler));
+        hr = m_pApplicationInfo->CreateHandler(*pHttpContext, m_pHandler);
+        if (FAILED(hr))
+        {
+            LOG_INFO(L"FAILED");
+            return retVal;
+        }
 
         SetupDisconnectHandler(pHttpContext);
 
