@@ -25,6 +25,6 @@ public:
     static
     HRESULT CopyToDirectory(std::filesystem::path destination, std::wstring source, bool cleanDest);
     static
-    bool CopyDirTo( const std::wstring& source_folder, const std::wstring& target_folder );
+    void CopyDirTo(const std::filesystem::path& source_folder, const std::filesystem::path& target_folder);
 };
 

@@ -167,6 +167,32 @@ namespace Microsoft.AspNetCore.Server.IIS.FunctionalTests
             //EventLogHelpers.VerifyEventLogEvent(deploymentResult, EventLogHelpers.ShutdownFileChange(deploymentResult), Logger);
         }
 
+        [ConditionalFact]
+        public async Task ShadowCopyE2EWorksWithFolderPresent()
+        {
+            var directory = CreateTempDirectory();
+            var deploymentParameters = Fixture.GetBaseDeploymentParameters();
+            deploymentParameters.HandlerSettings["enableShadowCopy"] = "true";
+            deploymentParameters.HandlerSettings["shadowCopyDirectory"] = directory.FullName;
+            deploymentParameters.HandlerSettings["debugLevel"] = "file";
+            deploymentParameters.HandlerSettings["debugFile"] = "subdirectory\\debug.txt";
+            var deploymentResult = await DeployAsync(deploymentParameters);
+
+            DirectoryCopy(deploymentResult.ContentRoot, Path.Combine(directory.FullName, "0"), copySubDirs: true);
+
+            await deploymentResult.HttpClient.GetStringAsync("Wow!");
+
+            var secondTempDir = CreateTempDirectory();
+
+            // copy back and forth to cause file change notifications.
+            DirectoryCopy(deploymentResult.ContentRoot, secondTempDir.FullName, copySubDirs: true);
+            DirectoryCopy(secondTempDir.FullName, deploymentResult.ContentRoot, copySubDirs: true);
+
+            deploymentResult.AssertWorkerProcessStop();
+
+            //EventLogHelpers.VerifyEventLogEvent(deploymentResult, EventLogHelpers.ShutdownFileChange(deploymentResult), Logger);
+        }
+
         protected static DirectoryInfo CreateTempDirectory()
         {
             var tempPath = Path.GetTempPath() + Guid.NewGuid().ToString("N");
